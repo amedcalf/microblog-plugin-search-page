@@ -1,8 +1,6 @@
 ---
 title: "Search"
 url: "/search/"
-menu: "main"
-weight: 100
 ---
 
 <script language="javascript">
