@@ -13,32 +13,24 @@ function runSearch(q) {
 
     results_node.innerHTML = "";
     if (q.length > 0) {
-        // split query into lowercase words
         let keywords = q.toLowerCase().trim().split(/\s+/);
 
         for (let i = 0; i < archive_results.items.length; i++) {
             let item = archive_results.items[i];
             
-            // --- NEW: Check for Linklog ---
-            // Standard JSON Feeds in Hugo output categories into a "tags" array
             let is_linklog = false;
             if (item.tags) {
                 is_linklog = item.tags.some(tag => tag.toLowerCase() === "linklog");
             }
 
-            // If the box is NOT checked, and the post IS a linklog, skip to the next item
             if (!include_linklog && is_linklog) {
                 continue;
             }
-            // ------------------------------
 
             let title_lower = item.title.toLowerCase();
             let text_lower = item.content_text.toLowerCase();
-
-            // combine title and text into one searchable string
             let full_text = title_lower + " " + text_lower;
 
-            // check if every keyword exists
             let match = keywords.every(function(k) {
                 return full_text.includes(k);
             });
@@ -80,12 +72,12 @@ function runSearch(q) {
 function submitSearch(q) {
     runSearch(q);
     
-    // push query and checkbox state into URL
     const url = new URL(window.location.href);
     url.searchParams.set("q", q);
     
-    if (document.getElementById("include_linklog").checked) {
-        url.searchParams.set("linklog", "true");
+    // Only add linklog=false if it's unchecked (since checked is default)
+    if (!document.getElementById("include_linklog").checked) {
+        url.searchParams.set("linklog", "false");
     } else {
         url.searchParams.delete("linklog");
     }
@@ -95,7 +87,6 @@ function submitSearch(q) {
 
 document.addEventListener("DOMContentLoaded", function() {
     let loading_timer = setTimeout(function() {
-        // show status text if archive doesn't load very quickly
         document.getElementById("list_loading").style.display = "flex";
     }, 1500);
 
@@ -105,16 +96,14 @@ document.addEventListener("DOMContentLoaded", function() {
         clearTimeout(loading_timer);
         document.getElementById("list_loading").style.display = "none";
 
-        // restore from search args
         const url = window.location.href;
         const params = new URLSearchParams(new URL(url).search);
         
-        // Restore checkbox state
-        if (params.get("linklog") === "true") {
-            document.getElementById("include_linklog").checked = true;
+        // Default is checked, but if URL explicitly says false, uncheck it
+        if (params.get("linklog") === "false") {
+            document.getElementById("include_linklog").checked = false;
         }
 
-        // Restore query string and run search
         const q = params.get("q");
         if (q && (q.length > 0)) {
             document.getElementById("input_search").value = q;
@@ -159,7 +148,7 @@ form {
     padding-left: 12px;
     border: 2px solid #eee;
     margin-top: 20px;
-    margin-bottom: 10px; /* Reduced to pull checkbox closer */
+    margin-bottom: 10px;
     border-radius: 17px;
     -webkit-appearance: none;
 }
@@ -169,8 +158,7 @@ form {
 <form onSubmit="return false;">
     <input class="field" type="text" name="q" id="input_search" placeholder="Search" onChange="submitSearch(this.value.toLowerCase());">    
     <div class="checkbox-wrapper">
-        <!-- Re-run search whenever the box is ticked/unticked -->
-        <input type="checkbox" id="include_linklog" onChange="submitSearch(document.getElementById('input_search').value.toLowerCase());">
+        <input type="checkbox" id="include_linklog" checked onChange="submitSearch(document.getElementById('input_search').value.toLowerCase());">
         <label for="include_linklog">Include Linklog posts</label>
     </div>
 </form>
