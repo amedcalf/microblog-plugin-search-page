@@ -167,8 +167,7 @@ form {
 </style>
 
 <form onSubmit="return false;">
-    <input class="field" type="text" name="q" id="input_search" placeholder="Search" onChange="submitSearch(this.value.toLowerCase());">
-    
+    <input class="field" type="text" name="q" id="input_search" placeholder="Search" onChange="submitSearch(this.value.toLowerCase());">    
     <div class="checkbox-wrapper">
         <!-- Re-run search whenever the box is ticked/unticked -->
         <input type="checkbox" id="include_linklog" onChange="submitSearch(document.getElementById('input_search').value.toLowerCase());">
